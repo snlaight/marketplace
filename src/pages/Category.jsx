@@ -14,7 +14,7 @@ import { toast } from 'react-toastify';
 import Spinner from '../components/Spinner';
 import ListingItem from '../components/ListingItem';
 
-const Offers = () => {
+const Category = () => {
   const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastFetchedListing, setLastFetchedListing] = useState(null);
@@ -28,13 +28,14 @@ const Offers = () => {
 
         const listingsQuery = query(
           listingsRef,
-          where('offer', '==', true),
+          where('type', '==', params.categoryName),
           orderBy('timestamp', 'desc'),
-          limit(10)
+          limit(5)
         );
 
         //execute query
         const querySnapshot = await getDocs(listingsQuery);
+
         const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
         setLastFetchedListing(lastVisible);
 
@@ -52,7 +53,7 @@ const Offers = () => {
       }
     };
     fetchListings();
-  }, []);
+  }, [params.categoryName]);
 
   const onFetchMoreListings = async () => {
     try {
@@ -60,7 +61,7 @@ const Offers = () => {
 
       const listingsQuery = query(
         listingsRef,
-        where('offer', '==', true),
+        where('type', '==', params.categoryName),
         orderBy('timestamp', 'desc'),
         startAfter(lastFetchedListing),
         limit(5)
@@ -89,7 +90,11 @@ const Offers = () => {
   return (
     <div className='category'>
       <header>
-        <p className='pageHeader'>Offers</p>
+        <p className='pageHeader'>
+          {params.categoryName === 'rent'
+            ? 'Places for rent'
+            : 'Places for sale'}
+        </p>
       </header>
       {loading ? (
         <Spinner />
@@ -106,6 +111,7 @@ const Offers = () => {
               ))}
             </ul>
           </main>
+
           <br />
           <br />
           {lastFetchedListing && (
@@ -115,10 +121,10 @@ const Offers = () => {
           )}
         </>
       ) : (
-        <p>There are no current offers</p>
+        <p>No listings for {params.categoryName}</p>
       )}
     </div>
   );
 };
 
-export default Offers;
+export default Category;
